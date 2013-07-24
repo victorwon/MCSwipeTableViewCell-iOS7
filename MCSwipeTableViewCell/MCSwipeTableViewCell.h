@@ -24,13 +24,19 @@ typedef NS_ENUM(NSUInteger, MCSwipeTableViewCellDirection){
 
 typedef NS_ENUM(NSUInteger, MCSwipeTableViewCellMode){
     MCSwipeTableViewCellModeExit = 0,
-    MCSwipeTableViewCellModeSwitch
+    MCSwipeTableViewCellModeSwitch,
+    MCSwipeTableViewCellModeExitLeft,
+    MCSwipeTableViewCellModeExitRight,
+    MCSwipeTableViewCellModeSwitchLeft,
+    MCSwipeTableViewCellModeSwitchRight
 };
 
 @protocol MCSwipeTableViewCellDelegate <NSObject>
 
 @optional
 - (void)swipeTableViewCell:(MCSwipeTableViewCell *)cell didTriggerState:(MCSwipeTableViewCellState)state withMode:(MCSwipeTableViewCellMode)mode;
+
+- (void)swipeTableViewCell:(MCSwipeTableViewCell *)cell isDragging:(BOOL)isDragging;
 
 @end
 

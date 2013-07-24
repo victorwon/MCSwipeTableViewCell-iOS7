@@ -8,8 +8,8 @@
 
 #import "MCSwipeTableViewCell.h"
 
-static CGFloat const kMCStop1 = 0.20; // Percentage limit to trigger the first action
-static CGFloat const kMCStop2 = 0.75; // Percentage limit to trigger the second action
+static CGFloat const kMCStop1 = 0.30; // Percentage limit to trigger the first action
+static CGFloat const kMCStop2 = 0.70; // Percentage limit to trigger the second action
 static CGFloat const kMCBounceAmplitude = 20.0; // Maximum bounce amplitude when using the MCSwipeTableViewCellModeSwitch mode
 static NSTimeInterval const kMCBounceDuration1 = 0.2; // Duration of the first part of the bounce animation
 static NSTimeInterval const kMCBounceDuration2 = 0.1; // Duration of the second part of the bounce animation
@@ -184,6 +184,10 @@ secondStateIconName:(NSString *)secondIconName
         [self.contentView setCenter:center];
         [self animateWithOffset:CGRectGetMinX(self.contentView.frame)];
         [gesture setTranslation:CGPointZero inView:self];
+        
+        if ([self.delegate respondsToSelector:@selector(swipeTableViewCell:didTriggerState:withMode:)]) {
+            [self.delegate swipeTableViewCell:self isDragging:YES];
+        }
     }
     else if (state == UIGestureRecognizerStateEnded || state == UIGestureRecognizerStateCancelled) {
         _isDragging = NO;
@@ -192,10 +196,22 @@ secondStateIconName:(NSString *)secondIconName
         _currentPercentage = percentage;
         MCSwipeTableViewCellState cellState= [self stateWithPercentage:percentage];
 
-        if (_mode == MCSwipeTableViewCellModeExit && _direction != MCSwipeTableViewCellDirectionCenter && [self validateState:cellState])
-            [self moveWithDuration:animationDuration andDirection:_direction];
-        else
-            [self bounceToOrigin];
+        if ([self validateState:cellState] &&  _direction != MCSwipeTableViewCellDirectionCenter) {
+            if ( _mode == MCSwipeTableViewCellModeExit
+                || (_direction == MCSwipeTableViewCellDirectionLeft && _mode == MCSwipeTableViewCellModeExitLeft)
+                ||  (_direction == MCSwipeTableViewCellDirectionRight && _mode == MCSwipeTableViewCellModeExitRight)
+                ) {
+                [self moveWithDuration:animationDuration andDirection:_direction];
+                
+            } else {
+                [self bounceToOrigin];
+            }
+        } else
+            [self bounceToOrigin];        
+        
+        if ([self.delegate respondsToSelector:@selector(swipeTableViewCell:didTriggerState:withMode:)]) {
+            [self.delegate swipeTableViewCell:self isDragging:NO];
+        }
     }
 }
 
